@@ -1,0 +1,15 @@
+drugName,condition,rating
+Paracetamol,fever,9
+Ibuprofen,fever,8
+Aspirin,fever,7
+Cetirizine,allergy,9
+Loratadine,allergy,8
+Metformin,diabetes,9
+Insulin,diabetes,10
+Amlodipine,high blood pressure,9
+Losartan,high blood pressure,8
+Sumatriptan,migraine,9
+Artemether,malaria,9
+Doxycycline,typhoid,8
+Ribavirin,hepatitis,7
+Tenofovir,hepatitis,9
