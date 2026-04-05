@@ -24,3 +24,9 @@ This project is a Machine Learning-based Medicine Recommendation System that sug
 ---
 
 ## 📂 Project Structure
+medicine_recommendation/
+│── app.py
+│── requirements.txt
+│── data/
+│── model/
+│── utils/
