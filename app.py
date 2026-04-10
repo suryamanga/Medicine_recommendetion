@@ -1,51 +1,64 @@
 import streamlit as st
 import pandas as pd
+import pickle
 
 from utils.predict import predict_disease
 from utils.recommendation import recommend_medicine
-# Load datasets
-desc = pd.read_csv("data/symptom_Description.csv")
-prec = pd.read_csv("data/symptom_precaution.csv")
-import pickle
 
+# Page configuration
+st.set_page_config(
+    page_title="Medicine Recommendation System",
+    page_icon="💊",
+    layout="centered",
+    initial_sidebar_state="auto"
+)
+
+# Load datasets
+SYMPTOM_DESC = pd.read_csv("data/symptom_Description.csv")
+SYMPTOM_PRECAUTION = pd.read_csv("data/symptom_precaution.csv")
 symptoms = pickle.load(open("model/symptoms.pkl", "rb"))
 
-# UI
+# Header
 st.title("💊 Medicine Recommendation System")
+st.markdown(
+    "This tool predicts a likely disease from selected symptoms and suggests precautions and medicines. "
+    "Please select at least one symptom to get started."
+)
 
+# Selection area
 selected = st.multiselect(
-    "🤒 Select Your Symptoms",
-    symptoms
+    "🤒 Select your symptoms",
+    symptoms,
+    help="Choose symptoms that best match how you feel"
 )
 
 if st.button("Predict"):
-    disease = predict_disease(selected)
-    
-    st.success(f"Predicted Disease: {disease}")
-    #
-    
-    # Description
-    d = desc[desc['Disease'] == disease]['Description'].values
-    if len(d) > 0:
-        st.info(d[0])
-    
-     # Precautions
-    p = prec[prec['Disease'] == disease].iloc[:,1:].values
-    st.write("Precautions:")
-    for item in p[0]:
-        if str(item) != "nan":
-            st.write("-", item)
-
-    # ✅ ADD FROM HERE (medicine section)
-    st.markdown("### 💊 Recommended Medicines")
-
-    meds = recommend_medicine(disease)
-
-    if len(meds) == 0:
-        st.warning("No specific medicines found. Please consult a doctor.")
+    if not selected:
+        st.warning("Please select at least one symptom before predicting.")
     else:
-       for med in meds:
-        st.write(f"💊 {med}")
-import pickle
+        disease = predict_disease(selected)
+        st.success(f"### Predicted Disease: {disease}")
 
-symptoms = pickle.load(open("model/symptoms.pkl", "rb"))
+        # Disease description
+        description = SYMPTOM_DESC[SYMPTOM_DESC["Disease"] == disease]["Description"].values
+        if len(description) > 0:
+            st.info(description[0])
+
+        # Precautions
+        precautions = SYMPTOM_PRECAUTION[SYMPTOM_PRECAUTION["Disease"] == disease].iloc[:, 1:].values
+        if precautions.size > 0:
+            with st.expander("🧾 Precautions", expanded=True):
+                for item in precautions[0]:
+                    if str(item).strip().lower() != "nan" and str(item).strip():
+                        st.write(f"- {item}")
+
+        # Recommended medicines
+        st.markdown("### 💊 Recommended Medicines")
+        meds = recommend_medicine(disease)
+        if len(meds) == 0:
+            st.warning("No medicine recommendations found for this disease. Please consult a doctor.")
+        else:
+            for med in meds:
+                st.write(f"- {med}")
+
+     
